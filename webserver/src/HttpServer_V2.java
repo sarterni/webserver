@@ -12,7 +12,7 @@ public class HttpServer_V2 {
     private static final int THREAD_POOL_SIZE = 10;
 
     public static void main(String[] args) {
-        int port = readPortFromXmlConfig("server-config.xml");
+        int port = readPortFromXmlConfig("port.xml");
 
         ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
@@ -43,14 +43,15 @@ public class HttpServer_V2 {
             Element portElement = (Element) doc.getElementsByTagName("port").item(0);
             return Integer.parseInt(portElement.getTextContent());
         } catch (Exception e) {
-            System.err.println("Error reading port from config, using default port " + DEFAULT_PORT + ": " + e.getMessage());
+            System.err.println(
+                    "Error reading port from config, using default port " + DEFAULT_PORT + ": " + e.getMessage());
             return DEFAULT_PORT;
         }
     }
 
     private static void handleClient(Socket clientSocket) {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-             OutputStream out = clientSocket.getOutputStream()) {
+                OutputStream out = clientSocket.getOutputStream()) {
 
             String requestLine = in.readLine();
             if (requestLine == null || requestLine.isEmpty()) {
