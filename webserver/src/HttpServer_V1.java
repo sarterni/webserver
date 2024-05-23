@@ -3,7 +3,7 @@ import java.net.*;
 import java.nio.file.*;
 
 
-public class HttpServer {
+public class HttpServer_V1 {
     public static void main(String[] args) {
         int port = 80; // Default port
         if (args.length > 0) {
