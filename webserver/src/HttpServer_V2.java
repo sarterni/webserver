@@ -18,14 +18,8 @@ public class HttpServer_V2 {
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port " + port);
-            while (true) {
-                try {
-                    Socket clientSocket = serverSocket.accept();
-                    threadPool.execute(() -> handleClient(clientSocket));
-                } catch (IOException e) {
-                    System.err.println("Error accepting client connection: " + e.getMessage());
-                }
-            }
+            int rootPath = readRootFromXmlConfig("webconfig.xml");
+            System.out.println("Root path: " + rootPath);
         } catch (IOException e) {
             System.err.println("Could not start server: " + e.getMessage());
         } finally {
@@ -48,6 +42,21 @@ public class HttpServer_V2 {
             return DEFAULT_PORT;
         }
     }
+
+    private static int readRootFromXmlConfig(String filePath) {
+        try {
+            File file = new File(filePath);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(file);
+            doc.getDocumentElement().normalize();
+            Element rootElement = (Element) doc.getElementsByTagName("root").item(0);
+            return Integer.parseInt(rootElement.getTextContent());
+        } catch (Exception e) {
+            System.err.println(
+                    "Error reading root from config, using default root " + DEFAULT_ROOT + ": " + e.getMessage());
+            return DEFAULT_ROOT;
+        }
 
     private static void handleClient(Socket clientSocket) {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
