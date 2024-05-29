@@ -10,16 +10,22 @@ import java.util.concurrent.*;
 public class HttpServer_V2 {
     private static final int DEFAULT_PORT = 80;
     private static final int THREAD_POOL_SIZE = 10;
+    private static final String DEFAULT_ROOT = "./"; // Default root directory
 
     public static void main(String[] args) {
         int port = readPortFromXmlConfig("webconfig.xml");
+        String rootPath = readRootFromXmlConfig("webconfig.xml");
 
         ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started on port " + port);
-            int rootPath = readRootFromXmlConfig("webconfig.xml");
             System.out.println("Root path: " + rootPath);
+
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                threadPool.execute(() -> handleClient(clientSocket, rootPath));
+            }
         } catch (IOException e) {
             System.err.println("Could not start server: " + e.getMessage());
         } finally {
@@ -43,7 +49,7 @@ public class HttpServer_V2 {
         }
     }
 
-    private static int readRootFromXmlConfig(String filePath) {
+    private static String readRootFromXmlConfig(String filePath) {
         try {
             File file = new File(filePath);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -51,14 +57,15 @@ public class HttpServer_V2 {
             Document doc = dBuilder.parse(file);
             doc.getDocumentElement().normalize();
             Element rootElement = (Element) doc.getElementsByTagName("root").item(0);
-            return Integer.parseInt(rootElement.getTextContent());
+            return rootElement.getTextContent();
         } catch (Exception e) {
             System.err.println(
                     "Error reading root from config, using default root " + DEFAULT_ROOT + ": " + e.getMessage());
             return DEFAULT_ROOT;
         }
+    }
 
-    private static void handleClient(Socket clientSocket) {
+    private static void handleClient(Socket clientSocket, String rootPath) {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream out = clientSocket.getOutputStream()) {
 
@@ -79,7 +86,7 @@ public class HttpServer_V2 {
                 filePath = "/index.html";
             }
 
-            filePath = "." + filePath;
+            filePath = rootPath + filePath;
 
             File file = new File(filePath);
             if (file.exists() && !file.isDirectory()) {
