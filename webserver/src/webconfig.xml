@@ -1,0 +1,13 @@
+<webconf>
+    <port>4444</port>
+    <root>/var/www</root>
+    <accept>192.168.0.0/24</accept>
+    <reject>192.168.1.0/24</reject>
+</webconf>
+
+
+<!-- <port>80</port> définit le port d'écoute du serveur.
+<root>/var/www</root> définit le répertoire racine du site web.
+<accept>192.168.0.0/24</accept> accepte toutes les requêtes provenant du réseau 192.168.0.0/24.
+<reject>192.168.1.0/24</reject> rejette toutes les requêtes provenant du réseau 192.168.1.0/24.
+Notez que si vous avez plusieurs adresses à accepter ou à rejeter, vous pouvez ajouter plusieurs balises <accept> et <reject>. -->

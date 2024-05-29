@@ -12,7 +12,7 @@ public class HttpServer_V2 {
     private static final int THREAD_POOL_SIZE = 10;
 
     public static void main(String[] args) {
-        int port = readPortFromXmlConfig("port.xml");
+        int port = readPortFromXmlConfig("webconfig.xml");
 
         ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
