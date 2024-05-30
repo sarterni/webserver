@@ -22,7 +22,7 @@ java HttpServer 8080
 Etape 3 : allez sur la page du serveur : 
 ouvrez un navigateur puis tapez : http://localhost/FichiersSiteWeb/index.html
 
-### Attention à bien indiquer le chemin de votre fichier html principal  à partir de HttpServer.java
+***Attention à bien indiquer le chemin de votre fichier html principal  à partir de HttpServer.java***
 
 ## Documentation du projet HttpServer_V2 (Version configurable)
 
