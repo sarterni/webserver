@@ -1,4 +1,4 @@
-# *BUT 1 INFO : SAE 2.04 : Créations et configurations d'un serveur web avec Javanet et XML : Nicolas Sarter*
+# BUT 1 INFO : SAE 2.04 : Création et configurations d'un serveur web avec Javanet et XML
 ## Quelle est la différence entre serveur et client ?
 
 En résumé, nous pouvons affirmer qu'un serveur est un ordinateur qui a comme objectif de fournir des données alors qu'un client est un ordinateur (ou un logiciel) qui reçoit les données envoyées par le serveur. Les deux travaillent donc ensemble dans un réseau
@@ -7,7 +7,7 @@ En résumé, nous pouvons affirmer qu'un serveur est un ordinateur qui a comme o
 
 **Classe : HttpServer_V1**
 
-## Pour lancer le serveur, vous devez compiler et exécuter le programme Java
+**Pour lancer le serveur, vous devez compiler et exécuter le programme Java**
 
 Etape 1 : compiler le code
 avac HttpServer.java 
