@@ -1,9 +1,9 @@
-# *Réseau création d'un serveur Web*
+# *BUT 1 INFO : SAE 2.04 : Créations et configurations d'un serveur web avec Javanet et XML : Nicolas Sarter*
 ## Quelle est la différence entre serveur et client ?
 
 En résumé, nous pouvons affirmer qu'un serveur est un ordinateur qui a comme objectif de fournir des données alors qu'un client est un ordinateur (ou un logiciel) qui reçoit les données envoyées par le serveur. Les deux travaillent donc ensemble dans un réseau
 
-## Documentation du projet HttpServer_V1
+## Documentation du projet HttpServer_V1 (Version non configurable)
 
 **Classe : HttpServer_V1**
 
@@ -24,7 +24,7 @@ ouvrez un navigateur puis tapez : http://localhost/FichiersSiteWeb/index.html
 
 ### Attention à bien indiquer le chemin de votre fichier html principal  à partir de HttpServer.java
 
-## Documentation du projet HttpServer_V2
+## Documentation du projet HttpServer_V2 (Version configurable)
 
 **Classe : HttpServer_V2**
 
