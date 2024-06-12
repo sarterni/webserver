@@ -11,7 +11,7 @@
     <h2>en bash</h2>
     <p>
         <?php
-        echo "Nous sommes le " . date("d/m/Y") . " et il est " . date("H:i:s");
+        echo "Nous sommes le " . gmdate("d/m/Y") . " et il est " . gmdate("H:i:s");
         ?>
     </p>
     <h2>en python</h2>

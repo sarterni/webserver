@@ -81,3 +81,6 @@ Received: GET /css/style.css HTTP/1.1
 Received: GET /favicon.ico HTTP/1.1
 Received: GET /miniWeb.html HTTP/1.1
 Received: GET /images/n2.jpg HTTP/1.1
+Received: GET / HTTP/1.1
+Received: GET /css/style.css HTTP/1.1
+Received: GET /DateAndTime.php HTTP/1.1
