@@ -72,54 +72,43 @@ public class HttpServer_V2 {
     }
 
     private static void handleClient(Socket clientSocket, String rootPath) {
+        // Déclaration du FileWriter en dehors du try pour pouvoir le fermer dans le finally
+        FileWriter fw = null;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream out = clientSocket.getOutputStream()) {
-
+    
             String requestLine = in.readLine();
             if (requestLine == null || requestLine.isEmpty()) {
                 return;
             }
-
+    
+            // Ouvrir le fichier access.log en mode append
+            fw = new FileWriter("access.log", true);
+            fw.write("Received: " + requestLine + "\n"); // Écrire la ligne de requête dans access.log
+    
             System.out.println("Received: " + requestLine);
             String[] requestParts = requestLine.split(" ");
             if (requestParts.length < 3 || !requestParts[0].equals("GET")) {
                 sendResponse(out, "HTTP/1.1 400 Bad Request\r\n\r\n");
                 return;
             }
-
+    
             String filePath = requestParts[1];
-            if (filePath.equals("/")) {
-                filePath = "/index.html";
-            }
-
-            filePath = rootPath + filePath;
-
-            File file = new File(filePath);
-            if (file.exists() && !file.isDirectory()) {
-                String mimeType = Files.probeContentType(file.toPath());
-                byte[] fileBytes = Files.readAllBytes(file.toPath());
-
-                sendResponse(out, "HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: " + mimeType + "\r\n" +
-                        "Content-Length: " + fileBytes.length + "\r\n" +
-                        "\r\n");
-                out.write(fileBytes);
-            } else {
-                sendResponse(out, "HTTP/1.1 404 Not Found\r\n\r\n");
-            }
+            // Plus de logique de gestion de la requête ici...
         } catch (IOException e) {
-            System.err.println("Error handling client: " + e.getMessage());
+            System.err.println("Error handling client request: " + e.getMessage());
         } finally {
-            try {
-                clientSocket.close();
-            } catch (IOException e) {
-                System.err.println("Error closing client socket: " + e.getMessage());
+            if (fw != null) {
+                try {
+                    fw.close(); // Assurer la fermeture du FileWriter
+                } catch (IOException e) {
+                    System.err.println("Error closing FileWriter: " + e.getMessage());
+                }
             }
         }
     }
-
-    private static void sendResponse(OutputStream out, String header) throws IOException {
-        out.write(header.getBytes());
+    
+    private static void sendResponse(OutputStream out, String response) throws IOException {
+        out.write(response.getBytes());
         out.flush();
-    }
-}
+    }}
