@@ -94,6 +94,26 @@ public class HttpServer_V2 {
             }
     
             String filePath = requestParts[1];
+            if (filePath.equals("/")) {
+                filePath = "/index.html";
+            }
+
+            filePath = rootPath + filePath;
+
+            File file = new File(filePath);
+            if (file.exists() && !file.isDirectory()) {
+                String mimeType = Files.probeContentType(file.toPath());
+                byte[] fileBytes = Files.readAllBytes(file.toPath());
+
+                sendResponse(out, "HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: " + mimeType + "\r\n" +
+                        "Content-Length: " + fileBytes.length + "\r\n" +
+                        "\r\n");
+                out.write(fileBytes);
+            } else {
+                sendResponse(out, "HTTP/1.1 404 Not Found\r\n\r\n");
+            }
+            
             // Plus de logique de gestion de la requête ici...
         } catch (IOException e) {
             System.err.println("Error handling client request: " + e.getMessage());
