@@ -9,12 +9,25 @@
 <body>
     <h1>Exemple avec la date</h1>
     <h2>en bash</h2>
-    <p>La date est <code>date</code></p>
-    <h2>En python</h2>
-    <p>La date est <code>import time; print(time.time())</code></p>
-</body>
+    <p>
+        <?php
+        echo "Nous sommes le " . date("d/m/Y") . " et il est " . date("H:i:s");
+        ?>
 
+
+    </p>
+    <h2>en python</h2>
+    <p>
+        <?php
+        $date = shell_exec("python3 -c 'import datetime; print(datetime.datetime.now())'");
+        echo "Nous sommes le " . substr($date, 0, 10) . " et il est " . substr($date, 11, 8);
+        ?>
+
+    </p>
+
+</body>
 </html>
+
 
 
 <!-- <!DOCTYPE html>
