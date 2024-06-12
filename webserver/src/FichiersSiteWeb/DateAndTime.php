@@ -13,8 +13,6 @@
         <?php
         echo "Nous sommes le " . date("d/m/Y") . " et il est " . date("H:i:s");
         ?>
-
-
     </p>
     <h2>en python</h2>
     <p>
@@ -22,11 +20,11 @@
         $date = shell_exec("python3 -c 'import datetime; print(datetime.datetime.now())'");
         echo "Nous sommes le " . substr($date, 0, 10) . " et il est " . substr($date, 11, 8);
         ?>
-
     </p>
 
 </body>
 </html>
+
 
 
 

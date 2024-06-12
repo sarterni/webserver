@@ -3,6 +3,8 @@
     <root>./FichiersSiteWeb/</root>
     <accept>192.168.0.0/24</accept>
     <reject>192.168.1.0/24</reject>
+    <acceslog>./FichiersSiteWeb/access.log</acceslog>
+    <errorlog>./FichiersSiteWeb/error.log</errorlog>
 </webconf>
 
 

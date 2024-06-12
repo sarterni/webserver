@@ -17,8 +17,10 @@ public class HttpServer_V2 {
         String rootPath = readRootFromXmlConfig("webconfig.xml");
 
         ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        File logFile = new File("error.log"); // Step 2: Create or open the log file
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket(port);
+             PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true))) { // Open the log file for writing
             System.out.println("Server started on port " + port);
             System.out.println("Root path: " + rootPath);
 
@@ -27,12 +29,16 @@ public class HttpServer_V2 {
                 threadPool.execute(() -> handleClient(clientSocket, rootPath));
             }
         } catch (IOException e) {
-            System.err.println("Could not start server: " + e.getMessage());
+            try (PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true))) { // Open the log file in catch block
+                logWriter.println("Could not start server: " + e.getMessage()); // Step 3: Write the error message to log file
+            } catch (IOException logException) {
+                System.err.println("Could not write to log file: " + logException.getMessage());
+            }
         } finally {
             threadPool.shutdown();
+            // No need to close PrintWriter here since it's auto-closed by try-with-resources
         }
     }
-
     private static int readPortFromXmlConfig(String filePath) {
         try {
             File file = new File(filePath);
