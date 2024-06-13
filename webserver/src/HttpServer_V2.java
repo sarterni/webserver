@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 
 import java.util.Base64;
 import java.util.concurrent.*;
+import java.lang.management.ManagementFactory; // Add this import statement
 
 public class HttpServer_V2 {
     private static final int DEFAULT_PORT = 80;
@@ -106,6 +107,21 @@ public class HttpServer_V2 {
                 filePath = "/index.html";
             }
 
+            else if (requestParts[1].equals("/status")) {
+                String status = "Server Status:\n";
+                Runtime runtime = Runtime.getRuntime();
+                long freeMemory = runtime.freeMemory();
+                long diskSpace = new File("/").getUsableSpace();
+                int processCount = ManagementFactory.getOperatingSystemMXBean().getAvailableProcessors();
+                status += "Free Memory: " + freeMemory + " bytes\n";
+                status += "Disk Space: " + diskSpace + " bytes\n";
+                status += "Process Count: " + processCount + "\n";
+                sendResponse(out, "HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: text/plain\r\n" +
+                        "Content-Length: " + status.length() + "\r\n" +
+                        "\r\n" +
+                        status);
+            }
             filePath = rootPath + filePath;
 
             File file = new File(filePath);
