@@ -121,9 +121,26 @@ public class HttpServer_V2 {
                         "Content-Length: " + status.length() + "\r\n" +
                         "\r\n" +
                         status);
+            
+                // Add code to write status to status.html
+                String statusFilePath = rootPath + "/status.html"; // Declare the filePath variable
+                File statusFile = new File(statusFilePath);
+                try (PrintWriter writer = new PrintWriter(statusFile)) {
+                    writer.println("<html>");
+                    writer.println("<head><title>Server Status</title></head>");
+                    writer.println("<body>");
+                    writer.println("<h1>Server Status</h1>");
+                    writer.println("<p>Free Memory: " + freeMemory + " bytes</p>");
+                    writer.println("<p>Disk Space: " + diskSpace + " bytes</p>");
+                    writer.println("<p>Process Count: " + processCount + "</p>");
+                    writer.println("</body>");
+                    writer.println("</html>");
+                } catch (IOException e) {
+                    System.err.println("Error writing status to status.html: " + e.getMessage());
+                }
             }
             filePath = rootPath + filePath;
-
+            
             File file = new File(filePath);
             if (file.exists() && !file.isDirectory()) {
                 // Après avoir vérifié que le fichier existe et n'est pas un répertoire
@@ -134,13 +151,13 @@ public class HttpServer_V2 {
                         "Content-Length: " + fileBytes.length + "\r\n" +
                         "\r\n");
                 out.write(fileBytes);
-
+            
                 // Vérifier si le fichier est de type image, son, ou vidéo
                 // if (mimeType.startsWith("image/") || mimeType.startsWith("audio/") ||
                 // mimeType.startsWith("video/")) {
                 // // Encoder le contenu du fichier en base64
                 // String base64Content = Base64.getEncoder().encodeToString(fileBytes);
-
+            
                 // // Envoyer les en-têtes avec Content-Encoding: base64 et le type MIME
                 // approprié
                 // sendResponse(out, "HTTP/1.1 200 OK\r\n" +
@@ -161,23 +178,23 @@ public class HttpServer_V2 {
             } else {
                 sendResponse(out, "HTTP/1.1 404 Not Found\r\n\r\n");
             }
-
+            
             // Plus de logique de gestion de la requête ici...
-        } catch (IOException e) {
-            System.err.println("Error handling client request: " + e.getMessage());
-        } finally {
-            if (fw != null) {
-                try {
-                    fw.close(); // Assurer la fermeture du FileWriter
-                } catch (IOException e) {
-                    System.err.println("Error closing FileWriter: " + e.getMessage());
+            } catch (IOException e) {
+                System.err.println("Error handling client request: " + e.getMessage());
+            } finally {
+                if (fw != null) {
+                    try {
+                        fw.close(); // Assurer la fermeture du FileWriter
+                    } catch (IOException e) {
+                        System.err.println("Error closing FileWriter: " + e.getMessage());
+                    }
                 }
             }
-        }
-    }
-
-    private static void sendResponse(OutputStream out, String response) throws IOException {
-        out.write(response.getBytes());
-        out.flush();
-    }
-}
+            }
+            
+            private static void sendResponse(OutputStream out, String response) throws IOException {
+            out.write(response.getBytes());
+            out.flush();
+            }
+            }
