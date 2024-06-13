@@ -113,28 +113,35 @@ public class HttpServer_V2 {
                 // Après avoir vérifié que le fichier existe et n'est pas un répertoire
                 String mimeType = Files.probeContentType(file.toPath());
                 byte[] fileBytes = Files.readAllBytes(file.toPath());
+                sendResponse(out, "HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: " + mimeType + "\r\n" +
+                        "Content-Length: " + fileBytes.length + "\r\n" +
+                        "\r\n");
+                out.write(fileBytes);
 
                 // Vérifier si le fichier est de type image, son, ou vidéo
-                if (mimeType.startsWith("image/") || mimeType.startsWith("audio/") || mimeType.startsWith("video/")) {
-                    // Encoder le contenu du fichier en base64
-                    String base64Content = Base64.getEncoder().encodeToString(fileBytes);
+                // if (mimeType.startsWith("image/") || mimeType.startsWith("audio/") ||
+                // mimeType.startsWith("video/")) {
+                // // Encoder le contenu du fichier en base64
+                // String base64Content = Base64.getEncoder().encodeToString(fileBytes);
 
-                    // Envoyer les en-têtes avec Content-Encoding: base64 et le type MIME approprié
-                    sendResponse(out, "HTTP/1.1 200 OK\r\n" +
-                            "Content-Type: " + mimeType + "\r\n" +
-                            "Content-Encoding: base64\r\n" +
-                            "Content-Length: " + base64Content.length() + "\r\n" +
-                            "\r\n" +
-                            base64Content);
-                } else {
-                    // Envoyer le fichier normalement si ce n'est pas un fichier image, son, ou
-                    // vidéo
-                    sendResponse(out, "HTTP/1.1 200 OK\r\n" +
-                            "Content-Type: " + mimeType + "\r\n" +
-                            "Content-Length: " + fileBytes.length + "\r\n" +
-                            "\r\n");
-                    out.write(fileBytes);
-                }
+                // // Envoyer les en-têtes avec Content-Encoding: base64 et le type MIME
+                // approprié
+                // sendResponse(out, "HTTP/1.1 200 OK\r\n" +
+                // "Content-Type: " + mimeType + "\r\n" +
+                // "Content-Encoding: base64\r\n" +
+                // "Content-Length: " + base64Content.length() + "\r\n" +
+                // "\r\n" +
+                // base64Content);
+                // } else {
+                // // Envoyer le fichier normalement si ce n'est pas un fichier image, son, ou
+                // // vidéo
+                // sendResponse(out, "HTTP/1.1 200 OK\r\n" +
+                // "Content-Type: " + mimeType + "\r\n" +
+                // "Content-Length: " + fileBytes.length + "\r\n" +
+                // "\r\n");
+                // out.write(fileBytes);
+                // }
             } else {
                 sendResponse(out, "HTTP/1.1 404 Not Found\r\n\r\n");
             }
