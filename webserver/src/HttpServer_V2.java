@@ -14,8 +14,13 @@ public class HttpServer_V2 {
     private static final int DEFAULT_PORT = 80;
     private static final int THREAD_POOL_SIZE = 10;
     private static final String DEFAULT_ROOT = "./"; // Default root directory
+    private static String acceptRange;
+    private static String rejectRange;
 
     public static void main(String[] args) {
+        loadConfiguration();
+        // Start your server logic here
+
         int port = readPortFromXmlConfig("webconfig.xml");
         String rootPath = readRootFromXmlConfig("webconfig.xml");
 
@@ -34,9 +39,9 @@ public class HttpServer_V2 {
             }
         } catch (IOException e) {
             try (PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true))) { // Open the log file in catch
-                                                                                           // block
+                // block
                 logWriter.println("Could not start server: " + e.getMessage()); // Step 3: Write the error message to
-                                                                                // log file
+                // log file
             } catch (IOException logException) {
                 System.err.println("Could not write to log file: " + logException.getMessage());
             }
@@ -121,7 +126,7 @@ public class HttpServer_V2 {
                         "Content-Length: " + status.length() + "\r\n" +
                         "\r\n" +
                         status);
-            
+
                 // Add code to write status to status.html
                 String statusFilePath = rootPath + "/status.html"; // Declare the filePath variable
                 File statusFile = new File(statusFilePath);
@@ -140,7 +145,7 @@ public class HttpServer_V2 {
                 }
             }
             filePath = rootPath + filePath;
-            
+
             File file = new File(filePath);
             if (file.exists() && !file.isDirectory()) {
                 // Après avoir vérifié que le fichier existe et n'est pas un répertoire
@@ -151,13 +156,13 @@ public class HttpServer_V2 {
                         "Content-Length: " + fileBytes.length + "\r\n" +
                         "\r\n");
                 out.write(fileBytes);
-            
+
                 // Vérifier si le fichier est de type image, son, ou vidéo
                 // if (mimeType.startsWith("image/") || mimeType.startsWith("audio/") ||
                 // mimeType.startsWith("video/")) {
                 // // Encoder le contenu du fichier en base64
                 // String base64Content = Base64.getEncoder().encodeToString(fileBytes);
-            
+
                 // // Envoyer les en-têtes avec Content-Encoding: base64 et le type MIME
                 // approprié
                 // sendResponse(out, "HTTP/1.1 200 OK\r\n" +
@@ -178,23 +183,56 @@ public class HttpServer_V2 {
             } else {
                 sendResponse(out, "HTTP/1.1 404 Not Found\r\n\r\n");
             }
-            
+
             // Plus de logique de gestion de la requête ici...
-            } catch (IOException e) {
-                System.err.println("Error handling client request: " + e.getMessage());
-            } finally {
-                if (fw != null) {
-                    try {
-                        fw.close(); // Assurer la fermeture du FileWriter
-                    } catch (IOException e) {
-                        System.err.println("Error closing FileWriter: " + e.getMessage());
-                    }
+        } catch (IOException e) {
+            System.err.println("Error handling client request: " + e.getMessage());
+        } finally {
+            if (fw != null) {
+                try {
+                    fw.close(); // Assurer la fermeture du FileWriter
+                } catch (IOException e) {
+                    System.err.println("Error closing FileWriter: " + e.getMessage());
                 }
             }
-            }
-            
-            private static void sendResponse(OutputStream out, String response) throws IOException {
-            out.write(response.getBytes());
-            out.flush();
-            }
-            }
+        }
+    }
+
+    private static void sendResponse(OutputStream out, String response) throws IOException {
+        out.write(response.getBytes());
+        out.flush();
+    }
+
+    private static void loadConfiguration() {
+        try {
+            File configFile = new File("webconfig.xml");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(configFile);
+            doc.getDocumentElement().normalize();
+
+            acceptRange = doc.getElementsByTagName("accept").item(0).getTextContent();
+            rejectRange = doc.getElementsByTagName("reject").item(0).getTextContent();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean isIpAllowed(String ipAddress) {
+        // Implement the logic to check if the IP is within the acceptRange and not in
+        // the rejectRange
+        // This is a placeholder for CIDR range checking logic
+        return true;
+    }
+
+    // Example method to handle a request
+    private static void handleRequest(Socket clientSocket) throws IOException {
+        InetAddress clientAddress = clientSocket.getInetAddress();
+        if (!isIpAllowed(clientAddress.getHostAddress())) {
+            // Reject the request by closing the socket or sending an HTTP response
+            System.out.println("Rejected IP: " + clientAddress.getHostAddress());
+            return;
+        }
+        // Continue handling the request
+    }
+}
