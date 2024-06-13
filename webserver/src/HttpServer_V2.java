@@ -5,6 +5,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.util.Base64;
 import java.util.concurrent.*;
 
 public class HttpServer_V2 {
@@ -20,7 +22,8 @@ public class HttpServer_V2 {
         File logFile = new File("error.log"); // Step 2: Create or open the log file
 
         try (ServerSocket serverSocket = new ServerSocket(port);
-             PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true))) { // Open the log file for writing
+                PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true))) { // Open the log file for
+                                                                                          // writing
             System.out.println("Server started on port " + port);
             System.out.println("Root path: " + rootPath);
 
@@ -29,16 +32,20 @@ public class HttpServer_V2 {
                 threadPool.execute(() -> handleClient(clientSocket, rootPath));
             }
         } catch (IOException e) {
-            try (PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true))) { // Open the log file in catch block
-                logWriter.println("Could not start server: " + e.getMessage()); // Step 3: Write the error message to log file
+            try (PrintWriter logWriter = new PrintWriter(new FileWriter(logFile, true))) { // Open the log file in catch
+                                                                                           // block
+                logWriter.println("Could not start server: " + e.getMessage()); // Step 3: Write the error message to
+                                                                                // log file
             } catch (IOException logException) {
                 System.err.println("Could not write to log file: " + logException.getMessage());
             }
         } finally {
             threadPool.shutdown();
-            // No need to close PrintWriter here since it's auto-closed by try-with-resources
+            // No need to close PrintWriter here since it's auto-closed by
+            // try-with-resources
         }
     }
+
     private static int readPortFromXmlConfig(String filePath) {
         try {
             File file = new File(filePath);
@@ -72,27 +79,28 @@ public class HttpServer_V2 {
     }
 
     private static void handleClient(Socket clientSocket, String rootPath) {
-        // Déclaration du FileWriter en dehors du try pour pouvoir le fermer dans le finally
+        // Déclaration du FileWriter en dehors du try pour pouvoir le fermer dans le
+        // finally
         FileWriter fw = null;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream out = clientSocket.getOutputStream()) {
-    
+
             String requestLine = in.readLine();
             if (requestLine == null || requestLine.isEmpty()) {
                 return;
             }
-    
+
             // Ouvrir le fichier access.log en mode append
             fw = new FileWriter("access.log", true);
             fw.write("Received: " + requestLine + "\n"); // Écrire la ligne de requête dans access.log
-    
+
             System.out.println("Received: " + requestLine);
             String[] requestParts = requestLine.split(" ");
             if (requestParts.length < 3 || !requestParts[0].equals("GET")) {
                 sendResponse(out, "HTTP/1.1 400 Bad Request\r\n\r\n");
                 return;
             }
-    
+
             String filePath = requestParts[1];
             if (filePath.equals("/")) {
                 filePath = "/index.html";
@@ -102,18 +110,35 @@ public class HttpServer_V2 {
 
             File file = new File(filePath);
             if (file.exists() && !file.isDirectory()) {
+                // Après avoir vérifié que le fichier existe et n'est pas un répertoire
                 String mimeType = Files.probeContentType(file.toPath());
                 byte[] fileBytes = Files.readAllBytes(file.toPath());
 
-                sendResponse(out, "HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: " + mimeType + "\r\n" +
-                        "Content-Length: " + fileBytes.length + "\r\n" +
-                        "\r\n");
-                out.write(fileBytes);
+                // Vérifier si le fichier est de type image, son, ou vidéo
+                if (mimeType.startsWith("image/") || mimeType.startsWith("audio/") || mimeType.startsWith("video/")) {
+                    // Encoder le contenu du fichier en base64
+                    String base64Content = Base64.getEncoder().encodeToString(fileBytes);
+
+                    // Envoyer les en-têtes avec Content-Encoding: base64 et le type MIME approprié
+                    sendResponse(out, "HTTP/1.1 200 OK\r\n" +
+                            "Content-Type: " + mimeType + "\r\n" +
+                            "Content-Encoding: base64\r\n" +
+                            "Content-Length: " + base64Content.length() + "\r\n" +
+                            "\r\n" +
+                            base64Content);
+                } else {
+                    // Envoyer le fichier normalement si ce n'est pas un fichier image, son, ou
+                    // vidéo
+                    sendResponse(out, "HTTP/1.1 200 OK\r\n" +
+                            "Content-Type: " + mimeType + "\r\n" +
+                            "Content-Length: " + fileBytes.length + "\r\n" +
+                            "\r\n");
+                    out.write(fileBytes);
+                }
             } else {
                 sendResponse(out, "HTTP/1.1 404 Not Found\r\n\r\n");
             }
-            
+
             // Plus de logique de gestion de la requête ici...
         } catch (IOException e) {
             System.err.println("Error handling client request: " + e.getMessage());
@@ -127,8 +152,9 @@ public class HttpServer_V2 {
             }
         }
     }
-    
+
     private static void sendResponse(OutputStream out, String response) throws IOException {
         out.write(response.getBytes());
         out.flush();
-    }}
+    }
+}
