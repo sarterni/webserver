@@ -6,6 +6,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,12 +19,13 @@ public class HttpServer_V2 {
     private static final String DEFAULT_ROOT = "./"; // Default root directory
     private static String acceptRange;
     private static String rejectRange;
-    private Set<String> blockedIPs = new HashSet<>();
+    private static final Set<String> blockedIPs = new HashSet<>();
+    private static final Set<String> allowedIPs = new HashSet<>(Arrays.asList("192.168.1.1", "10.0.0.1")); // Example allowed IPs
 
     public HttpServer_V2() {
         // Initialize your IP filtering lists here
         // Example: Block a specific IP address
-        blockedIPs.add("localhost");
+        blockedIPs.add("127.0.0.1");
     }
 
     public static void main(String[] args) {
@@ -233,12 +235,10 @@ public class HttpServer_V2 {
         }
     }
 
-    private static boolean isIpAllowed(String ipAddress) {
-        // Implement the logic to check if the IP is within the acceptRange and not in
-        // the rejectRange
-        // This is a placeholder for CIDR range checking logic
-        return true;
-    }
+
+private static boolean isIpAllowed(String ipAddress) {
+    return allowedIPs.contains(ipAddress);
+}
 
     // Example method to handle a request
     private static void handleRequest(Socket clientSocket) throws IOException {
