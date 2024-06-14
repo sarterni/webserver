@@ -19,14 +19,9 @@ public class HttpServer_V2 {
     private static final String DEFAULT_ROOT = "./"; // Default root directory
     private static String acceptRange;
     private static String rejectRange;
-    private static final Set<String> blockedIPs = new HashSet<>();
-    private static final Set<String> allowedIPs = new HashSet<>(Arrays.asList("192.168.1.1", "10.0.0.1")); // Example allowed IPs
-
-    public HttpServer_V2() {
-        // Initialize your IP filtering lists here
-        // Example: Block a specific IP address
-        blockedIPs.add("127.0.0.1");
-    }
+    private static final Set<String> allowedIPs = new HashSet<>(Arrays.asList("192.168.1.1", "10.0.0.1")); // Example
+                                                                                                           // allowed
+                                                                                                           // IPs
 
     public static void main(String[] args) {
         String bashDate = executeCommand(new String[] { "/bin/bash", "-c", "date" });
@@ -173,7 +168,7 @@ public class HttpServer_V2 {
                         "Content-Length: " + fileBytes.length + "\r\n" +
                         "\r\n");
                 out.write(fileBytes);
-
+                // encode the file content in base64
                 // Vérifier si le fichier est de type image, son, ou vidéo
                 // if (mimeType.startsWith("image/") || mimeType.startsWith("audio/") ||
                 // mimeType.startsWith("video/")) {
@@ -235,49 +230,33 @@ public class HttpServer_V2 {
         }
     }
 
+    private static boolean isIpAllowed(String ipAddress) {
+        return allowedIPs.contains(ipAddress);
+    }
 
-private static boolean isIpAllowed(String ipAddress) {
-    return allowedIPs.contains(ipAddress);
+private static final Set<String> blockedIPs = new HashSet<>(Arrays.asList("127.0.0.1")); // Exemple d'adresses IP bloquées
+
+private static boolean isIpBlocked(String ipAddress) {
+    return blockedIPs.contains(ipAddress);
 }
-
     // Example method to handle a request
     private static void handleRequest(Socket clientSocket) throws IOException {
         InetAddress clientAddress = clientSocket.getInetAddress();
-        if (!isIpAllowed(clientAddress.getHostAddress())) {
-            // Reject the request by closing the socket or sending an HTTP response
-            System.out.println("Rejected IP: " + clientAddress.getHostAddress());
-            return;
+        String clientIP = clientAddress.getHostAddress();
+        
+        // Vérifier si l'IP est bloquée
+        if (isIpBlocked(clientIP)) {
+            System.out.println("Blocked IP: " + clientIP);
+            return; // Rejeter la requête en sortant de la méthode
         }
-        // Continue handling the request
-    }
+        
+        // Vérifier si l'IP est autorisée
+        if (!isIpAllowed(clientIP)) {
+            System.out.println("Rejected IP: " + clientIP);
+            return; // Rejeter la requête en sortant de la méthode
 
-    private boolean isIPBlocked(String ipAddress) {
-        return blockedIPs.contains(ipAddress);
-    }
 
-    private String getClientIP(Socket socket) {
-        return socket.getInetAddress().getHostAddress();
-    }
-
-    public void handleClientRequest(Socket clientSocket) {
-        try {
-            String clientIP = getClientIP(clientSocket);
-            System.out.println("Client IP: " + clientIP);
-            if (isIPBlocked(clientIP)) {
-                System.out.println("Blocked IP: " + clientIP);
-                // Optionally send a response indicating the block
-                try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
-                    out.println("HTTP/1.1 403 Forbidden\r\n\r\n");
-                }
-                clientSocket.close(); // Ensure the socket is closed
-                return; // Stop processing this request
             }
-
-            // Your existing request handling logic here
-
-        } catch (IOException e) {
-            System.err.println("Error handling client request: " + e.getMessage());
-        }
     }
 
     private static String executeCommand(String[] command) {
