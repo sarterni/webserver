@@ -7,6 +7,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.lang.management.ManagementFactory; // Add this import statement
 
@@ -16,6 +18,13 @@ public class HttpServer_V2 {
     private static final String DEFAULT_ROOT = "./"; // Default root directory
     private static String acceptRange;
     private static String rejectRange;
+    private Set<String> blockedIPs = new HashSet<>();
+
+    public HttpServer_V2() {
+        // Initialize your IP filtering lists here
+        // Example: Block a specific IP address
+        blockedIPs.add("127.0.0.1");
+    }
 
     public static void main(String[] args) {
         loadConfiguration();
@@ -234,5 +243,31 @@ public class HttpServer_V2 {
             return;
         }
         // Continue handling the request
+    }
+
+    private boolean isIPBlocked(String ipAddress) {
+        return blockedIPs.contains(ipAddress);
+    }
+
+    private String getClientIP(Socket socket) {
+        return socket.getInetAddress().getHostAddress();
+    }
+
+    public void handleClientRequest(Socket clientSocket) {
+        try {
+            String clientIP = getClientIP(clientSocket);
+            if (isIPBlocked(clientIP)) {
+                System.out.println("Blocked IP: " + clientIP);
+                // Optionally send a response indicating the block
+                try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+                    out.println("HTTP/1.1 403 Forbidden\r\n\r\n");
+                }
+                return; // Stop processing this request
+            }
+
+            // Your existing request handling logic here
+        } catch (IOException e) {
+            System.err.println("Error handling client request: " + e.getMessage());
+        }
     }
 }
