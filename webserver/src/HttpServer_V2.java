@@ -97,8 +97,6 @@ public class HttpServer_V2 {
     }
 
     private static void handleClient(Socket clientSocket, String rootPath) {
-        // Déclaration du FileWriter en dehors du try pour pouvoir le fermer dans le
-        // finally
         FileWriter fw = null;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream out = clientSocket.getOutputStream()) {
@@ -108,9 +106,14 @@ public class HttpServer_V2 {
                 return;
             }
 
-            // Ouvrir le fichier access.log en mode append
-            fw = new FileWriter("access.log", true);
-            fw.write("Received: " + requestLine + "\n"); // Écrire la ligne de requête dans access.log
+            try {
+                fw = new FileWriter("access.log", true);
+                fw.write("Received: " + requestLine + "\n");
+            } finally {
+                if (fw != null) {
+                    fw.close();
+                }
+            }
 
             System.out.println("Received: " + requestLine);
             String[] requestParts = requestLine.split(" ");
