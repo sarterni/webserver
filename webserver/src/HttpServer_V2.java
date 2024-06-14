@@ -23,7 +23,7 @@ public class HttpServer_V2 {
     public HttpServer_V2() {
         // Initialize your IP filtering lists here
         // Example: Block a specific IP address
-        blockedIPs.add("127.0.0.1");
+        blockedIPs.add("localhost");
     }
 
     public static void main(String[] args) {
@@ -259,12 +259,14 @@ public class HttpServer_V2 {
     public void handleClientRequest(Socket clientSocket) {
         try {
             String clientIP = getClientIP(clientSocket);
+            System.out.println("Client IP: " + clientIP);
             if (isIPBlocked(clientIP)) {
                 System.out.println("Blocked IP: " + clientIP);
                 // Optionally send a response indicating the block
                 try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
                     out.println("HTTP/1.1 403 Forbidden\r\n\r\n");
                 }
+                clientSocket.close(); // Ensure the socket is closed
                 return; // Stop processing this request
             }
 
