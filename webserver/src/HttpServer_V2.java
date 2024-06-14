@@ -27,6 +27,9 @@ public class HttpServer_V2 {
     }
 
     public static void main(String[] args) {
+        String bashDate = executeCommand(new String[]{"/bin/bash", "-c", "date"});
+        String pythonTime = executeCommand(new String[]{"/usr/bin/python", "-c", "import time; print(time.time())"});
+        generateHTML(bashDate, pythonTime);
         loadConfiguration();
         // Start your server logic here
 
@@ -266,8 +269,51 @@ public class HttpServer_V2 {
             }
 
             // Your existing request handling logic here
+            
         } catch (IOException e) {
             System.err.println("Error handling client request: " + e.getMessage());
         }
     }
+
+    private static String executeCommand(String[] command) {
+        StringBuilder output = new StringBuilder();
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return output.toString();
+    }
+
+    private static void generateHTML(String bashDate, String pythonTime) {
+        String htmlContent = "<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <title>Exemple avec la date</title>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "    <h1>Exemple avec la date</h1>\n" +
+                "    <h2>En bash</h2>\n" +
+                "    La date est <code interpreteur=\"/bin/bash\">date</code>\n" +
+                "    <p>" + bashDate + "</p>\n" +
+                "    <h2>En python</h2>\n" +
+                "    La date est <code interpreteur=\"/usr/bin/python\">import time; print(time.time())</code>\n" +
+                "    <p>" + pythonTime + "</p>\n" +
+                "</body>\n" +
+                "</html>";
+
+        try (FileWriter writer = new FileWriter("./FichiersSiteWeb/DateAndTime.html")) {
+            writer.write(htmlContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
