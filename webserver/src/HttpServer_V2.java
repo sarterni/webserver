@@ -27,8 +27,8 @@ public class HttpServer_V2 {
     }
 
     public static void main(String[] args) {
-        String bashDate = executeCommand(new String[]{"/bin/bash", "-c", "date"});
-        String pythonTime = executeCommand(new String[]{"/usr/bin/python", "-c", "import time; print(time.time())"});
+        String bashDate = executeCommand(new String[] { "/bin/bash", "-c", "date" });
+        String pythonTime = executeCommand(new String[] { "/usr/bin/python", "-c", "import time; print(time.time())" });
         generateHTML(bashDate, pythonTime);
         loadConfiguration();
         // Start your server logic here
@@ -269,7 +269,7 @@ public class HttpServer_V2 {
             }
 
             // Your existing request handling logic here
-            
+
         } catch (IOException e) {
             System.err.println("Error handling client request: " + e.getMessage());
         }
@@ -316,4 +316,3 @@ public class HttpServer_V2 {
         }
     }
 }
-
